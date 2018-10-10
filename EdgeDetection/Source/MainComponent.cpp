@@ -8,30 +8,39 @@
 
 #include "MainComponent.h"
 
-//==============================================================================
-MainComponent::MainComponent()
-{
-    setSize (600, 400);
-}
-
-MainComponent::~MainComponent()
-{
-}
 
 //==============================================================================
-void MainComponent::paint (Graphics& g)
+MainContentComponent::MainContentComponent (const File& imageFile)
 {
-    // (Our component is opaque, so we must completely fill the background with a solid colour)
-    g.fillAll (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));
-
-    g.setFont (Font (16.0f));
-    g.setColour (Colours::white);
-    g.drawText ("Hello World!", getLocalBounds(), Justification::centred, true);
+    if (imageFile.existsAsFile())
+    {
+        Image loadImage = ImageFileFormat::loadFrom(imageFile);
+        
+        edge.detectEdges(loadImage);
+        
+        drawImage = edge.getDetectedImage();
+        
+        setSize (loadImage.getWidth(), loadImage.getHeight());
+    }
+    else
+    {
+        DBG("Couldnt find image: " + imageFile.getFullPathName());
+        setSize(100, 100);
+    }
 }
 
-void MainComponent::resized()
+MainContentComponent::~MainContentComponent()
 {
-    // This is called when the MainComponent is resized.
+}
+
+void MainContentComponent::paint (Graphics& g)
+{
+    g.drawImage(drawImage, 0, 0, getWidth(), getHeight(), 0, 0, drawImage.getWidth(), drawImage.getHeight());
+}
+
+void MainContentComponent::resized()
+{
+    // This is called when the MainContentComponent is resized.
     // If you add any child components, this is where you should
     // update their positions.
 }
